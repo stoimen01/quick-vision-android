@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">QuickVision</string>
+    <string name="server_label">Server IP :</string>
+    <string name="port_label">Port number :</string>
+    <string name="button_label">Start streaming</string>
+    <string name="quality_label">Video quality</string>
+    <string name="size_label">Video size</string>
+</resources>
