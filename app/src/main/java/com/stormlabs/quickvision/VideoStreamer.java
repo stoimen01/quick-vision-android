@@ -2,7 +2,6 @@ package com.stormlabs.quickvision;
 
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import org.opencv.android.Utils;
@@ -26,13 +25,17 @@ class VideoStreamer extends Thread {
 
     private InetAddress serverAddress;
     private int serverPort;
+    private int size;
+    private int quality;
     private DatagramSocket udpSocket;
 
 
-    VideoStreamer(String serverIP, int serverPort, int localPort) throws SocketException, UnknownHostException {
+    VideoStreamer(String serverIP, int serverPort, int localPort, int size, int quality) throws SocketException, UnknownHostException {
         udpSocket = new DatagramSocket(localPort);
         serverAddress = InetAddress.getByName(serverIP);
         this.serverPort = serverPort;
+        this.size = size;
+        this.quality = quality;
     }
 
 
@@ -51,7 +54,9 @@ class VideoStreamer extends Thread {
                     long t1 = System.currentTimeMillis();
                     sendLastFrame();
                     Thread.sleep(40);
-                    Log.d(VideoActivity.TAG,"NFPS: " + 1000 / (System.currentTimeMillis() - t1));
+                    long t2 = System.currentTimeMillis();
+                    long dif = t2 - t1;
+                    Log.d(VideoActivity.TAG,"NFPS: " + 1000 / dif + " Send time: " + dif);
                 } catch (IOException|InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -67,10 +72,10 @@ class VideoStreamer extends Thread {
         // Creating bitmap and compressing to JPEG with low quality
         Bitmap tmpBitmap = Bitmap.createBitmap(lastFrame.cols(), lastFrame.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(lastFrame, tmpBitmap);
-        Bitmap resized = Bitmap.createScaledBitmap(tmpBitmap, 256, 256, false);
+        Bitmap resized = Bitmap.createScaledBitmap(tmpBitmap, size, size, false);
 
         ByteArrayOutputStream tmpStream = new ByteArrayOutputStream();
-        resized.compress(Bitmap.CompressFormat.JPEG, 10, tmpStream);
+        resized.compress(Bitmap.CompressFormat.JPEG, quality, tmpStream);
         byte[] jpgByteArray = tmpStream.toByteArray();
         tmpStream.close();
 
@@ -108,15 +113,11 @@ class VideoStreamer extends Thread {
             udpSocket.send(packet);
             base += chunkSize;
         }
-
-        Log.d(VideoActivity.TAG, "frame sent with length: " + compressedBytes.length );
-
+        Log.d(VideoActivity.TAG, "Frame length: " + compressedBytes.length + " bytes. " + "Num of packets: " + packsNum);
     }
-
 
     void stopStreaming(){
         this.isStopped = true;
     }
-
 
 }

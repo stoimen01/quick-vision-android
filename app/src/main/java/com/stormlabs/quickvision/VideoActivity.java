@@ -31,8 +31,7 @@ public class VideoActivity extends Activity
     private CameraBridgeViewBase mOpenCvCameraView;
     private VideoStreamer videoStreamer;
     private String serverIP;
-    private int serverPort;
-
+    private int serverPort, size, quality;
 
     /* Activity lifecycle methods */
 
@@ -45,12 +44,14 @@ public class VideoActivity extends Activity
         Intent intent = getIntent();
         serverIP = intent.getStringExtra(MainActivity.IP);
         serverPort = Integer.parseInt(intent.getStringExtra(MainActivity.PORT));
-
+        size = Integer.parseInt(intent.getStringExtra(MainActivity.SIZE));
+        quality = Integer.parseInt(intent.getStringExtra(MainActivity.QUALITY));
 
         // Setting up the camera view
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.image_manipulations_activity_surface_view);
         mOpenCvCameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
+        mOpenCvCameraView.enableFpsMeter();
 
     }
 
@@ -109,7 +110,7 @@ public class VideoActivity extends Activity
 
         // Setting up the video streamer
         try {
-            videoStreamer = new VideoStreamer(serverIP, serverPort, 6000);
+            videoStreamer = new VideoStreamer(serverIP, serverPort, 6000, size, quality);
             videoStreamer.start();
         }catch (SocketException|UnknownHostException e){
             e.printStackTrace();
