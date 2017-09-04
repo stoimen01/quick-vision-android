@@ -29,6 +29,28 @@ class VideoStreamer extends Thread {
     private int quality;
     private DatagramSocket udpSocket;
 
+    private class SendInfo {
+
+        int packetsNum;
+        int dataSize;
+        long compressTime;
+        long sendTime;
+        long wholeTime;
+
+        SendInfo(int packetsNum, int dataSize, long compressTime, long sendTime){
+            this.packetsNum = packetsNum;
+            this.dataSize = dataSize;
+            this.compressTime = compressTime;
+            this.sendTime = sendTime;
+            this.wholeTime = sendTime + compressTime;
+        }
+
+        void log(){
+            Log.d(VideoActivity.TAG, "time: " + wholeTime + " data size: " + dataSize + " c_time: " + compressTime + " s_time: " + sendTime);
+        }
+
+    }
+
 
     VideoStreamer(String serverIP, int serverPort, int localPort, int size, int quality) throws SocketException, UnknownHostException {
         udpSocket = new DatagramSocket(localPort);
@@ -39,7 +61,7 @@ class VideoStreamer extends Thread {
     }
 
 
-    void setLastFrame(Mat f){
+    void setLastFrame(Mat f) {
         this.lastFrame = f;
     }
 
@@ -51,13 +73,12 @@ class VideoStreamer extends Thread {
         while (!isStopped) {
             if (lastFrame != null) {
                 try {
-                    long t1 = System.currentTimeMillis();
-                    sendLastFrame();
-                    Thread.sleep(40);
-                    long t2 = System.currentTimeMillis();
-                    long dif = t2 - t1;
-                    Log.d(VideoActivity.TAG,"NFPS: " + 1000 / dif + " Send time: " + dif);
-                } catch (IOException|InterruptedException e) {
+
+                    SendInfo sInfo = sendLastFrame();
+                    sInfo.log();
+                    lastFrame = null;
+
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -67,7 +88,9 @@ class VideoStreamer extends Thread {
     }
 
 
-    private void sendLastFrame() throws IOException{
+    private SendInfo sendLastFrame() throws IOException{
+
+        long t1 = System.currentTimeMillis();
 
         // Creating bitmap and compressing to JPEG with low quality
         Bitmap tmpBitmap = Bitmap.createBitmap(lastFrame.cols(), lastFrame.rows(), Bitmap.Config.ARGB_8888);
@@ -113,7 +136,8 @@ class VideoStreamer extends Thread {
             udpSocket.send(packet);
             base += chunkSize;
         }
-        Log.d(VideoActivity.TAG, "Frame length: " + compressedBytes.length + " bytes. " + "Num of packets: " + packsNum);
+
+        return new SendInfo(packsNum, compressedBytes.length, timeStamp - t1, System.currentTimeMillis() - timeStamp);
     }
 
     void stopStreaming(){

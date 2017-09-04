@@ -18,6 +18,8 @@ import org.opencv.imgproc.Imgproc;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class VideoActivity extends Activity
         implements CameraBridgeViewBase.CvCameraViewListener2 {
