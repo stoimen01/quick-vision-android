@@ -46,7 +46,8 @@ class VideoStreamer extends Thread {
         }
 
         void log(){
-            Log.d(VideoActivity.TAG, "time: " + wholeTime + " data size: " + dataSize + " c_time: " + compressTime + " s_time: " + sendTime);
+            Log.d(VideoActivity.TAG,
+                    "time: " + wholeTime + " data size: " + dataSize + " packets: " + packetsNum);
         }
 
     }
