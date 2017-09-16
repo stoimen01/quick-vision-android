@@ -1,2 +1,15 @@
-# quick-vision-android
-This repository contains the android application source code for the quick vision project. The application basically sends images from different souces via UDP to remote python server in real-time.
+# Installation :
+Open project folder with Android Studio
+Build project
+Run on device
+
+# Usage :
+Enter quick-vision-linux server ip address
+Enter port
+Enter video frame size (depends on the used neural net)
+Enter desired video quality
+
+# Requirements:
+Android Studio 2.3 
+Android 4.4 ^
+Android NDK 
