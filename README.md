@@ -1,7 +1,10 @@
 # Installation :
 Open project folder with Android Studio
+'''
 Build project
+'''
 Run on device
+'''
 
 # Usage :
 Enter quick-vision-linux server ip address
