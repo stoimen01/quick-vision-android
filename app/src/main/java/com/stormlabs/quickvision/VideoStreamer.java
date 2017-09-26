@@ -106,12 +106,12 @@ class VideoStreamer extends Thread {
         // Creating bitmap and compressing to JPEG with low quality
         Bitmap tmpBitmap = Bitmap.createBitmap(lastFrame.cols(), lastFrame.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(lastFrame, tmpBitmap);
-        //Bitmap resized = Bitmap.createScaledBitmap(tmpBitmap, size, size, false);
+        Bitmap resized = Bitmap.createScaledBitmap(tmpBitmap, size, size, false);
 
-        Bitmap cropped = Bitmap.createBitmap(tmpBitmap, 0, 0, size, size);
+        //Bitmap cropped = Bitmap.createBitmap(tmpBitmap, 0, 0, size, size);
 
         ByteArrayOutputStream tmpStream = new ByteArrayOutputStream();
-        cropped.compress(Bitmap.CompressFormat.JPEG, quality, tmpStream);
+        resized.compress(Bitmap.CompressFormat.JPEG, quality, tmpStream);
         byte[] jpgByteArray = tmpStream.toByteArray();
         tmpStream.close();
 
