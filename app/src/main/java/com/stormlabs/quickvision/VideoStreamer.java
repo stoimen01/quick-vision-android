@@ -6,6 +6,7 @@ import android.util.Log;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import org.opencv.video.Video;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -75,11 +76,20 @@ class VideoStreamer extends Thread {
             if (lastFrame != null) {
                 try {
 
+                    long t1 = System.currentTimeMillis();
                     SendInfo sInfo = sendLastFrame();
                     sInfo.log();
                     lastFrame = null;
+                    long diff = System.currentTimeMillis() - t1;
 
-                } catch (IOException e) {
+                    if ( (66 - diff) > 0) Thread.sleep((66 - diff));
+
+                    Log.d(VideoActivity.TAG,"Sleep time: " + String.valueOf(System.currentTimeMillis() - t1));
+
+
+
+
+                } catch (IOException|InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -96,10 +106,12 @@ class VideoStreamer extends Thread {
         // Creating bitmap and compressing to JPEG with low quality
         Bitmap tmpBitmap = Bitmap.createBitmap(lastFrame.cols(), lastFrame.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(lastFrame, tmpBitmap);
-        Bitmap resized = Bitmap.createScaledBitmap(tmpBitmap, size, size, false);
+        //Bitmap resized = Bitmap.createScaledBitmap(tmpBitmap, size, size, false);
+
+        Bitmap cropped = Bitmap.createBitmap(tmpBitmap, 0, 0, size, size);
 
         ByteArrayOutputStream tmpStream = new ByteArrayOutputStream();
-        resized.compress(Bitmap.CompressFormat.JPEG, quality, tmpStream);
+        cropped.compress(Bitmap.CompressFormat.JPEG, quality, tmpStream);
         byte[] jpgByteArray = tmpStream.toByteArray();
         tmpStream.close();
 
